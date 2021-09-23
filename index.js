@@ -73,8 +73,8 @@ const getWeekData = async (page) =>{
     page.setDefaultNavigationTimeout(0);
     await page.goto('https://teaching.brunel.ac.uk/teaching/SWS-2122/login.aspx');
     
-    await page.type('[name=tUserName]', '1908906');
-    await page.type('[name="tPassword"]', 'Katia1974');
+    await page.type('[name=tUserName]', 'someone');
+    await page.type('[name="tPassword"]', 'password');
     await page.click('[type=submit]');
     await page.waitForTimeout(400)
     await page.click('a[id="LinkBtn_mystudentsettimetable"]')
@@ -92,11 +92,15 @@ const getWeekData = async (page) =>{
         if(week.length > 0){
             year.push(week)
         }
+        const promise = page.waitForNavigation({ waitUntil: 'networkidle2' });
         await page.click('a[id="bNextWeek"]')
-        await page.waitForTimeout(400)
-
+        await promise;
     }
     console.log( year)
+    let numLec = 0
+    year.forEach(week=> week.forEach(day=> numLec++))
+    console.log("You have " + year.length+" weeks of lectures & labs: " + numLec + " in total")
+
 
     // console.log(await page.content());
     
