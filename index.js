@@ -1,6 +1,34 @@
 const puppeteer = require("puppeteer");
 const ical = require('ical-generator')
+const { v4: uuidv4 } = require('uuid');
+const express = require('express')
 
+const app = express()
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+const port = 7000
+
+app.post('/', async(req, res) => {
+    const fileID = await fetchData(req.body.username, req.body.password)
+    if(fileID){
+        console.log(fileID)
+        res.status(200)
+        res.send(fileID)
+    }else{
+        console.log(fileID)
+        res.status(400)
+        res.send('Something went wrong :/')
+    }
+  })
+
+
+app.get('/:id', (req, res) => {
+    res.download(`./calendars/${req.params.id}.ical`)
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
 
 
 let formated_results = (monday_date, result) =>{
@@ -70,7 +98,7 @@ const getWeekData = async (page) =>{
 }
 
 
-(async ()=> {
+ const fetchData = async (id, password) => {
     
     
     const browser = await puppeteer.launch();
@@ -79,8 +107,8 @@ const getWeekData = async (page) =>{
     page.setDefaultNavigationTimeout(0);
     await page.goto('https://teaching.brunel.ac.uk/teaching/SWS-2122/login.aspx');
     
-    await page.type('[name=tUserName]', '1904620');
-    await page.type('[name="tPassword"]', 'Rocket52');
+    await page.type('[name=tUserName]', id);
+    await page.type('[name="tPassword"]', password);
     await page.click('[type=submit]');
     console.log("User Logged In")
     await page.waitForTimeout(400)
@@ -111,11 +139,13 @@ const getWeekData = async (page) =>{
         numLec++;
         cal.createEvent({...event})
     }))
-    cal.saveSync('./callendar.ical')
+    const fileID = uuidv4();
+    cal.saveSync(`./calendars/${fileID}.ical`)
     console.log("You have " + year.length+" weeks of lectures & labs: " + numLec + " in total")
     
     // console.log(await page.content());
     
     await browser.close();
-})();
+    return fileID
+};
 
