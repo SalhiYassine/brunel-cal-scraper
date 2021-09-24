@@ -111,26 +111,27 @@ const getWeekData = async (page) =>{
     await page.type('[name="tPassword"]', password);
     await page.click('[type=submit]');
     console.log("User Logged In")
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(200)
     await page.click('a[id="LinkBtn_mystudentsettimetable"]')
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(150)
     await page.select('select[name="lbWeeks"]','1')
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(150)
     await page.select('select[name="dlType"]','TextSpreadsheet;swsurl;SWSCUST Object TextSpreadsheet')
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(150)
     await page.click('[type=submit]');
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(200)
     let year = []
-    for(let i = 0; i<52; i++){
+    for(let i = 0; i< 35; i++){
         console.log("Fetched Week: "+i)
-        await page.waitForTimeout(400)
         let week = await getWeekData(page)
         if(week.length > 0){
             year.push(week)
         }
-        const promise = page.waitForNavigation({ waitUntil: 'networkidle2' });
+        // const promise = page.waitForNavigation({ waitUntil: 'networkidle2' });
         await page.click('a[id="bNextWeek"]')
-        await promise;
+        await page.waitForTimeout(150)
+
+        // await promise;
     }
     console.log( year)
     let numLec = 0
